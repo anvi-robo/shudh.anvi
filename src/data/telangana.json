@@ -1,0 +1,55 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "area": "Kondapur" },
+      "geometry": { "type": "Point", "coordinates": [78.37089, 17.45708] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "Miyapur" },
+      "geometry": { "type": "Point", "coordinates": [78.368494, 17.487303] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "Hafeezpet" },
+      "geometry": { "type": "Point", "coordinates": [78.400909, 17.493069] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "Kondapur" },
+      "geometry": { "type": "Point", "coordinates": [78.371133, 17.457612] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4735, 17.4020] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4755, 17.4018] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4762, 17.4040] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4748, 17.4042] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4738, 17.4032] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "area": "KPHB" },
+      "geometry": { "type": "Point", "coordinates": [78.4729, 17.4035] }
+    }
+  ]
+}
