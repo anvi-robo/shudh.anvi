@@ -3,18 +3,19 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import icon from "./images/icon.png";
 
-const divisionsByDistrict = {
-  Nizamabad: ['Armoor', 'Bodhan', 'Nizamabad Urban', 'Nizamabad Rural'],
-  Hyderabad: ['1-Charminar', '2-Vinay Nagar', '11-L.B.Nagar','Secunderabad', 'Malkajgiri', 'KPHB', 'Kondapur'],
-  Warangal: ['Warangal East', 'Warangal West', 'Hanamkonda'],
-  Karimnagar: ['Karimnagar Urban', 'Choppadandi', 'Manakondur'],
+const divisionsByDivision = {
+  "Division 6 (SR Nagar)": ['Armoor', 'Bodhan', 'Nizamabad Urban', 'Nizamabad Rural'],
+  "Division 9 (Kukatpally)": ['Karimnagar Urban', 'Choppadandi', 'Manakondur'],
+  "Division 15 (Durgam Cheruvu)": ['1-Charminar', '2-Vinay Nagar', '11-L.B.Nagar','Secunderabad', 'Malkajgiri', 'KPHB', 'Kondapur'],
+  "Division 17 (Hafeezpet)": ['Chanda Nagar', 'Warangal West', 'Hanamkonda'],
+  "Division 18 (manikonda)": ['Warangal East', 'Warangal West', 'Hanamkonda'],
 };
 
-const telanganaDistricts = Object.keys(divisionsByDistrict);
+const telanganaDivision = Object.keys(divisionsByDivision);
 
-const DistrictSelection = () => {
-  const [selectedDistrict, setSelectedDistrict] = useState('');
+const DivisionSelection = () => {
   const [selectedDivision, setSelectedDivision] = useState('');
+  const [selectedArea, setSelectedArea] = useState('');
   const [fromDate, setFromDate] = useState();
   const [toDate, setToDate] = useState(new Date().toISOString().split("T")[0]);
   const [devices, setDevices] = useState([]);
@@ -24,11 +25,11 @@ const DistrictSelection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedDistrict) return;
+    if (!selectedArea) return;
 
     try {
-      let url = `https://sewage-bot-poc.onrender.com/api/data?district=${selectedDistrict}`;
-      if (selectedDivision) url += `&division=${selectedDivision}`;
+      let url = `https://sewage-bot-poc.onrender.com/api/data?division=${selectedDivision}`;
+      if (selectedArea) url += `&area=${selectedArea}`;
       const res = await axios.get(url);
       setDevices(res.data);
     } catch (err) {
@@ -37,7 +38,7 @@ const DistrictSelection = () => {
   };
 
   const handleDeviceClick = (device) => {
-    navigate(`/dashboard/${device.device_id}/${selectedDistrict}`);
+    navigate(`/dashboard/${device.device_id}/${selectedDivision}`);
   };
 
   const filteredDevices = devices.filter((device) => {
@@ -78,12 +79,12 @@ const DistrictSelection = () => {
           <div style={{ display: 'flex', gap: '5.5rem', flexWrap: 'wrap', flex: 1 }}>
             {/* District */}
             <div style={{ display: 'flex', alignItems:'center', gap: '2.25rem' }}>
-              <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>District</label>
+              <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>Division</label>
               <select
-                value={selectedDistrict}
+                value={selectedDivision}
                 onChange={(e) => {
-                  setSelectedDistrict(e.target.value);
-                  setSelectedDivision('');
+                  setSelectedDivision(e.target.value);
+                  setSelectedArea('');
                 }}
                 required
                 style={{
@@ -96,19 +97,19 @@ const DistrictSelection = () => {
                 }}
               >
                 <option value="">----All----</option>
-                {telanganaDistricts.map((district) => (
-                  <option key={district} value={district}>{district}</option>
+                {telanganaDivision.map((division) => (
+                  <option key={division} value={division}>{division}</option>
                 ))}
               </select>
             </div>
 
             {/* Division */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>Division</label>
+              <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>Section</label>
               <select
-                value={selectedDivision}
-                onChange={(e) => setSelectedDivision(e.target.value)}
-                disabled={!selectedDistrict}
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
+                disabled={!selectedDivision}
                 style={{
                   padding: '0.5rem 0.75rem',
                   border: '1px solid #ccc',
@@ -119,9 +120,9 @@ const DistrictSelection = () => {
                 }}
               >
                 <option value="">----All----</option>
-                {selectedDistrict &&
-                  divisionsByDistrict[selectedDistrict]?.map((division) => (
-                    <option key={division} value={division}>{division}</option>
+                {selectedDivision &&
+                  divisionsByDivision[selectedDivision]?.map((area) => (
+                    <option key={area} value={area}>{area}</option>
                   ))}
               </select>
             </div>
@@ -131,14 +132,14 @@ const DistrictSelection = () => {
           <div style={{ alignSelf: 'flex-start' }}>
             <button
               type="submit"
-              disabled={!selectedDistrict}
+              disabled={!selectedDivision}
               style={{
                 padding: '0.5rem 1.5rem',
                 borderRadius: '0.375rem',
                 fontWeight: '500',
-                backgroundColor: selectedDistrict ? '#1D4ED8' : '#ccc',
+                backgroundColor: selectedDivision ? '#1D4ED8' : '#ccc',
                 color: 'white',
-                cursor: selectedDistrict ? 'pointer' : 'not-allowed',
+                cursor: selectedDivision ? 'pointer' : 'not-allowed',
                 whiteSpace: 'nowrap'
               }}
             >
@@ -202,7 +203,7 @@ const DistrictSelection = () => {
           {/* Header */}
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
             <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151' }}>
-              Showing Bots for {selectedDistrict}{selectedDivision && ` > ${selectedDivision}`}
+              Showing Bots for {selectedDivision}{selectedArea && ` > ${selectedArea}`}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -262,4 +263,4 @@ const DistrictSelection = () => {
   );
 };
 
-export default DistrictSelection;
+export default DivisionSelection;
