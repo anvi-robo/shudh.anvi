@@ -3,12 +3,22 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import icon from "./images/icon.png";
 
+// Use short division names as keys
 const divisionsByDivision = {
-  "Division 6 (SR Nagar)": ['Armoor', 'Bodhan', 'Nizamabad Urban', 'Nizamabad Rural'],
-  "Division 9 (Kukatpally)": ['Karimnagar Urban', 'Choppadandi', 'Manakondur'],
-  "Division 15 (Durgam Cheruvu)": ['1-Charminar', '2-Vinay Nagar', '11-L.B.Nagar','Secunderabad', 'Malkajgiri', 'KPHB', 'Kondapur'],
-  "Division 17 (Hafeezpet)": ['Chanda Nagar', 'Warangal West', 'Hanamkonda'],
-  "Division 18 (manikonda)": ['Warangal East', 'Warangal West', 'Hanamkonda'],
+  "SR Nagar": ['Borabanda', 'Somajiguda', 'Yellareddyguda', 'Jubille Hills', 'Vengalroanagar', 'Fathenagar'],
+  "Kukatpally": ['Karimnagar Urban', 'Choppadandi', 'Manakondur'],
+  "Durgam Cheruvu": ['Nallagandla', 'Madhapur', 'Kondapur', 'Gachibowli'],
+  "Hafeezpet": ['Chandanagar', 'Warangal West', 'Hanamkonda'],
+  "Manikonda": ['Jalpally', 'Thukkuguda', 'Kismathpur', 'Manikonda', 'Shamshabad'],
+};
+
+// Mapping for display names
+const displayDivisionNames = {
+  "SR Nagar": "Division 6 (SR Nagar)",
+  "Kukatpally": "Division 9 (Kukatpally)",
+  "Durgam Cheruvu": "Division 15 (Durgam Cheruvu)",
+  "Hafeezpet": "Division 17 (Hafeezpet)",
+  "Manikonda": "Division 18 (Manikonda)",
 };
 
 const telanganaDivision = Object.keys(divisionsByDivision);
@@ -24,18 +34,28 @@ const DivisionSelection = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedArea) return;
+  e.preventDefault();
+  if (!selectedDivision) return;
 
-    try {
-      let url = `https://sewage-bot-poc.onrender.com/api/data?division=${selectedDivision}`;
-      if (selectedArea) url += `&area=${selectedArea}`;
-      const res = await axios.get(url);
-      setDevices(res.data);
-    } catch (err) {
-      console.error("Error fetching devices:", err);
-    }
-  };
+  const district = "Hyderabad"; // You can make this dynamic if needed
+
+  try {
+    let url = `https://sewage-bot-poc.onrender.com/api/data/location/${district}`;
+    const res = await axios.get(url);
+
+    // Filter on frontend
+    const filtered = res.data.filter((device) => {
+      const matchesDivision = selectedDivision ? device.division === displayDivisionNames[selectedDivision] : true;
+      const matchesArea = selectedArea ? device.area.toLowerCase() === selectedArea.toLowerCase() : true;
+      return matchesDivision && matchesArea;
+    });
+
+    setDevices(filtered);
+  } catch (err) {
+    console.error("Error fetching devices:", err);
+  }
+};
+
 
   const handleDeviceClick = (device) => {
     navigate(`/dashboard/${device.device_id}/${selectedDivision}`);
@@ -77,7 +97,7 @@ const DivisionSelection = () => {
           gap: '1rem'
         }}>
           <div style={{ display: 'flex', gap: '5.5rem', flexWrap: 'wrap', flex: 1 }}>
-            {/* District */}
+            {/* Division */}
             <div style={{ display: 'flex', alignItems:'center', gap: '2.25rem' }}>
               <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>Division</label>
               <select
@@ -98,12 +118,14 @@ const DivisionSelection = () => {
               >
                 <option value="">----All----</option>
                 {telanganaDivision.map((division) => (
-                  <option key={division} value={division}>{division}</option>
+                  <option key={division} value={division}>
+                    {displayDivisionNames[division]}
+                  </option>
                 ))}
               </select>
             </div>
 
-            {/* Division */}
+            {/* Area */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <label style={{ fontWeight: '700', marginBottom: '0.3rem', color: '#374151' }}>Section</label>
               <select
@@ -195,70 +217,69 @@ const DivisionSelection = () => {
         </div>
       </form>
 
-
-
       {/* Devices Section */}
-      {devices.length > 0 && (
-        <div style={{ marginTop: '2.5rem', maxWidth: '90rem', marginLeft: 'auto', marginRight: 'auto' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
-            <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151' }}>
-              Showing Bots for {selectedDivision}{selectedArea && ` > ${selectedArea}`}
-            </div>
+      <div style={{ marginTop: '2.5rem', maxWidth: '90rem', marginLeft: 'auto', marginRight: 'auto' }}>
+        {devices.length > 0 && filteredDevices.length > 0 ? (
+          <>
+            {/* Header */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#374151' }}>
+                Showing Bots for {displayDivisionNames[selectedDivision]}{selectedArea && ` > ${selectedArea}`}
+              </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <label style={{ fontWeight: '500', color: '#4b5563' }}>Sort:</label>
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                style={{ padding: '0.25rem 0.75rem', border: '1px solid #ccc', borderRadius: '0.375rem' }}
-              >
-                <option value="active">Sort by Active</option>
-                <option value="inactive">Sort by Inactive</option>
-                <option value="all">Show All</option>
-              </select>
-            </div>
-
-            <div style={{ textAlign: 'right', color: '#374151', fontWeight: '500' }}>
-              Bots Deployed: {totalBots}<br />
-              Waste Collected: {totalWaste} KG
-            </div>
-          </div>
-
-          {/* Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            {[...new Map(filteredDevices.map(device => [device.device_id, device])).values()]
-              .map((device) => (
-                <div
-                  key={device.device_id}
-                  onClick={() => handleDeviceClick(device)}
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                  }}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <label style={{ fontWeight: '500', color: '#4b5563' }}>Sort:</label>
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  style={{ padding: '0.25rem 0.75rem', border: '1px solid #ccc', borderRadius: '0.375rem' }}
                 >
-                  <img src={icon} alt="device" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                    <div style={{ fontWeight: '600', color: '#1f2937' }}>{device.device_id}</div>
-                    {device.status === 'active' && (
-                      <span style={{ color: '#16a34a', fontSize: '0.875rem', fontWeight: '500' }}>ACTIVE</span>
-                    )}
-                  </div>
-                </div>
-            ))}
-          </div>
+                  <option value="active">Sort by Active</option>
+                  <option value="inactive">Sort by Inactive</option>
+                  <option value="all">Show All</option>
+                </select>
+              </div>
 
-          {/* Empty state */}
-          {filteredDevices.length === 0 && (
+              <div style={{ textAlign: 'right', color: '#374151', fontWeight: '500' }}>
+                Bots Deployed: {totalBots}<br />
+                Waste Collected: {totalWaste} KG
+              </div>
+            </div>
+
+            {/* Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 350px))', gap: '1rem' }}>
+              {[...new Map(filteredDevices.map(device => [device.device_id, device])).values()]
+                .map((device) => (
+                  <div
+                    key={device.device_id}
+                    onClick={() => handleDeviceClick(device)}
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '0.5rem',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <img src={icon} alt="device" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                      <div style={{ fontWeight: '600', color: '#1f2937' }}>{device.device_id}</div>
+                      {device.status === 'active' && (
+                        <span style={{ color: '#16a34a', fontSize: '0.875rem', fontWeight: '500' }}>ACTIVE</span>
+                      )}
+                    </div>
+                  </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          selectedDivision && (
             <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2.5rem' }}>
               No bots found for this location.
             </div>
-          )}
-        </div>
-      )}
+          )
+        )}
+      </div>
     </div>
   );
 };
