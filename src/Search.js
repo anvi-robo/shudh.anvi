@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import icon from "./images/icon.png";
 
@@ -61,12 +62,14 @@ const DivisionSelection = () => {
     navigate(`/dashboard/${device.device_id}/${selectedDivision}`);
   };
 
-  const filteredDevices = devices.filter((device) => {
+  const filteredDevices = useMemo(() => {
+  return devices.filter((device) => {
     if (sortOption === 'all') return true;
     return sortOption === 'active'
       ? device.status === 'active'
       : device.status !== 'active';
   });
+}, [devices, sortOption]);
 
   const totalBots = new Set(devices.map(d => d.device_id)).size;
   const totalWaste = devices.reduce(
@@ -219,7 +222,7 @@ const DivisionSelection = () => {
 
       {/* Devices Section */}
       <div style={{ marginTop: '2.5rem', maxWidth: '90rem', marginLeft: 'auto', marginRight: 'auto' }}>
-        {devices.length > 0 && filteredDevices.length > 0 ? (
+        {devices.length > 0 && (
           <>
             {/* Header */}
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', gap: '1rem' }}>
@@ -247,37 +250,37 @@ const DivisionSelection = () => {
             </div>
 
             {/* Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 350px))', gap: '1rem' }}>
-              {[...new Map(filteredDevices.map(device => [device.device_id, device])).values()]
-                .map((device) => (
-                  <div
-                    key={device.device_id}
-                    onClick={() => handleDeviceClick(device)}
-                    style={{
-                      backgroundColor: 'white',
-                      borderRadius: '0.5rem',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                      cursor: 'pointer',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <img src={icon} alt="device" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-                      <div style={{ fontWeight: '600', color: '#1f2937' }}>{device.device_id}</div>
-                      {device.status === 'active' && (
-                        <span style={{ color: '#16a34a', fontSize: '0.875rem', fontWeight: '500' }}>ACTIVE</span>
-                      )}
+            {filteredDevices.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 350px))', gap: '1rem' }}>
+                {[...new Map(filteredDevices.map(device => [device.device_id, device])).values()]
+                  .map((device) => (
+                    <div
+                      key={device.device_id}
+                      onClick={() => handleDeviceClick(device)}
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        cursor: 'pointer',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <img src={icon} alt="device" style={{ width: '100%', height: '160px', objectFit: 'cover' }} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+                        <div style={{ fontWeight: '600', color: '#1f2937' }}>{device.device_id}</div>
+                        {device.status === 'active' && (
+                          <span style={{ color: '#16a34a', fontSize: '0.875rem', fontWeight: '500' }}>ACTIVE</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2.5rem' }}>
+                No bots found for selected filter: <strong>{sortOption}</strong>
+              </div>
+            )}
           </>
-        ) : (
-          selectedDivision && (
-            <div style={{ textAlign: 'center', color: '#6b7280', marginTop: '2.5rem' }}>
-              No bots found for this location.
-            </div>
-          )
         )}
       </div>
     </div>
@@ -285,3 +288,4 @@ const DivisionSelection = () => {
 };
 
 export default DivisionSelection;
+
