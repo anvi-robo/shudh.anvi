@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import axios from 'axios';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import hmwssbLogo from './images/hmwssbcopy.png';
 
 export default function Dashboard() {
   const { DevName, district } = useParams();
@@ -41,7 +42,7 @@ export default function Dashboard() {
   const totalWaste = deviceOps.reduce((sum, op) => sum + (op.waste_collected || 0), 0);
 
   const styles = {
-    container: { padding: '4rem', fontFamily: 'Arial' },
+    container: { padding: '2rem', fontFamily: 'Arial' },
     header: { display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' },
     titleBlock: { display: 'flex', flexDirection: 'column', fontSize: '1.4rem', fontWeight: 'bold', color: '#0074cc' },
     metrics: { textAlign: 'right', fontSize: '1rem', color: '#333' },
@@ -108,81 +109,123 @@ export default function Dashboard() {
 
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <div style={styles.titleBlock}>
-          <div>District: {decodeURIComponent(district)}</div>
-          <div>Device: {DevName}</div>
+    <>
+      <div style={{ backgroundColor: 'white', borderBottom: '2px solid #ccc' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0rem 2rem',
+          }}>
+          <img src={hmwssbLogo} alt="HMWSSB Logo" style={{ height: '60px' }} />
         </div>
-        <div style={styles.metrics}>
-          <div><b>Waste Collected:</b> {totalWaste} kg</div>
-          <div><b>No. of Operations:</b> {deviceOps.length}</div>
-        </div>
+        <div style={{ height: '25px', backgroundColor: '#075985' }}>
+          <div style={{ display: 'flex', justifyContent: 'center' , alignItems: 'center', fontWeight: '500', fontSize: '1rem', color: 'white' }}>
+            SHUDH
+          </div>
+        </div> 
       </div>
 
-      <div style={styles.sectionRow}>
-        {/* Left */}
-        <div style={styles.leftSection}>
-          <h3>Selected Operation Details</h3>
-          <table style={styles.table}>
-            <tbody>
-              <tr><td style={styles.thtd}><b>Date</b></td><td style={styles.thtd}>{formattedDate}</td></tr>
-              <tr><td style={styles.thtd}><b>Time</b></td><td style={styles.thtd}>{formattedTime}</td></tr>
-              <tr><td style={styles.thtd}><b>Device</b></td><td style={styles.thtd}>{selectedOp.device_id}</td></tr>
-              <tr><td style={styles.thtd}><b>Gas Level</b></td><td style={styles.thtd}>{selectedOp.gas_level}</td></tr>
-              <tr><td style={styles.thtd}><b>Location</b></td><td style={styles.thtd}>{lat}, {lng}</td></tr>
-            </tbody>
-          </table>
-
-          <div style={styles.imgRow}>
-            <div style={styles.imgBox}><img src={selectedOp.before_path} alt="Before" style={styles.image} /><div>Before</div></div>
-            <div style={styles.imgBox}><img src={selectedOp.after_path} alt="After" style={styles.image} /><div>After</div></div>
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <div style={styles.titleBlock}>
+            <div>District: {decodeURIComponent(district)}</div>
+            <div>Device: {DevName}</div>
+          </div>
+          <div style={styles.metrics}>
+            <div><b>Waste Collected:</b> {totalWaste} kg</div>
+            <div><b>No. of Operations:</b> {deviceOps.length}</div>
           </div>
         </div>
 
-        {/* Right */}
-        <div style={styles.rightSection}>
-          {/* Map */}
-          <div style={styles.mapWrapper}>
-            <button style={styles.fullscreenBtn} onClick={() => setIsFullscreen(!isFullscreen)}>
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            </button>
-            <MapContainer center={[lat, lng]} zoom={17} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-              <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-              <Marker position={[lat, lng]} icon={markerIcon}>
-                <Popup>
-                  {DevName}<br />{formattedDate} {formattedTime}
-                </Popup>
-              </Marker>
-            </MapContainer>
-          </div>
+        <div style={styles.sectionRow}>
+          {/* Left */}
+          <div style={styles.leftSection}>
+            <h3>Selected Operation Details</h3>
+            <table style={styles.table}>
+              <tbody>
+                <tr><td style={styles.thtd}><b>Date</b></td><td style={styles.thtd}>{formattedDate}</td></tr>
+                <tr><td style={styles.thtd}><b>Time</b></td><td style={styles.thtd}>{formattedTime}</td></tr>
+                <tr><td style={styles.thtd}><b>Device</b></td><td style={styles.thtd}>{selectedOp.device_id}</td></tr>
+                <tr><td style={styles.thtd}><b>Gas Level</b></td><td style={styles.thtd}>{selectedOp.gas_level}</td></tr>
+                <tr><td style={styles.thtd}><b>Location</b></td><td style={styles.thtd}>{lat}, {lng}</td></tr>
+              </tbody>
+            </table>
 
-          {/* Operation History */}
-          <h4>Operation History</h4>
-          <div style={styles.historyBox}>
-            {sortedOps.map((op, idx) => (
-              <div
-                key={idx}
-                style={{
-                  ...styles.historyItem,
-                  backgroundColor: selectedOperationIndex === idx ? '#e0f7ff' : '#fff',
-                }}
-              >
-                <span>{new Date(op.timestamp).toLocaleString()}</span>
-                <button
-                  style={{
-                    ...styles.viewBtn,
-                    backgroundColor: selectedOperationIndex === idx ? '#e0f7ff' : '#007bff',
-                  }}
-                  onClick={() => setSelectedOperationIndex(idx)}
-                >
-                  View
-                </button>
+            <div style={styles.imgRow}>
+              <div style={styles.imgBox}>
+                {selectedOp?.before_path ? (
+                  <img
+                    src={`https://sewage-bot-poc.onrender.com/${selectedOp.before_path}`}
+                    alt="Before"
+                    style={styles.image}
+                  />
+                ) : (
+                  <div style={{ color: 'gray' }}>No Before Image</div>
+                )}
+                <div>Before</div>
               </div>
-            ))}
+
+              <div style={styles.imgBox}>
+                {selectedOp?.after_path ? (
+                  <img
+                    src={`https://sewage-bot-poc.onrender.com/${selectedOp.after_path}`}
+                    alt="After"
+                    style={styles.image}
+                  />
+                ) : (
+                  <div style={{ color: 'gray' }}>No After Image</div>
+                )}
+                <div>After</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right */}
+          <div style={styles.rightSection}>
+            {/* Map */}
+            <div style={styles.mapWrapper}>
+              <button style={styles.fullscreenBtn} onClick={() => setIsFullscreen(!isFullscreen)}>
+                {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              </button>
+              <MapContainer center={[lat, lng]} zoom={17} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={[lat, lng]} icon={markerIcon}>
+                  <Popup>
+                    {DevName}<br />{formattedDate} {formattedTime}
+                  </Popup>
+                </Marker>
+              </MapContainer>
+            </div>
+
+            {/* Operation History */}
+            <h4>Operation History</h4>
+            <div style={styles.historyBox}>
+              {sortedOps.map((op, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    ...styles.historyItem,
+                    backgroundColor: selectedOperationIndex === idx ? '#e0f7ff' : '#fff',
+                  }}
+                >
+                  <span>{new Date(op.timestamp).toLocaleString()}</span>
+                  <button
+                    style={{
+                      ...styles.viewBtn,
+                      backgroundColor: selectedOperationIndex === idx ? '#e0f7ff' : '#007bff',
+                    }}
+                    onClick={() => setSelectedOperationIndex(idx)}
+                  >
+                    View
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
+
   );
 }
